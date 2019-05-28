@@ -50,11 +50,6 @@ public class FileUserStorageProvider implements
     /* UserLookupProvider interface implementation (Start) */
     @Override
     public void close() {
-        try {
-            userRepository.persistUserDataToFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         log.infov("[UserLookupProvider] Closing at the end of the transaction.");
     }
 
@@ -75,11 +70,11 @@ public class FileUserStorageProvider implements
             log.infov("Found user: {0}", user);
             if (user != null) {
                 // very awkward way to save user updates to the external repository from the Keycloak admin console
-//                FileTransaction transaction = new FileTransaction(userRepository, user, this);
-//                if (transaction.getState() == FileTransaction.TransactionState.NOT_STARTED) {
-//                    log.infov("Enlisting user repository transaction ...");
-//                    session.getTransactionManager().enlistAfterCompletion(transaction);
-//                }
+                FileTransaction transaction = new FileTransaction(userRepository, user, this);
+                if (transaction.getState() == FileTransaction.TransactionState.NOT_STARTED) {
+                    log.infov("Enlisting user repository transaction ...");
+                    session.getTransactionManager().enlistAfterCompletion(transaction);
+                }
 
                 adapter = createAdapter(realm, user);
                 loadedUsers.put(username, adapter);
@@ -295,11 +290,11 @@ public class FileUserStorageProvider implements
         // [Issue Record] https://stackoverflow.com/questions/56272637/how-do-i-write-a-simple-transaction-wrapper-in-a-keycloak-spi-extension
         UserModel userModel = createAdapter(realm, user);
 
-//        FileTransaction transaction = new FileTransaction(userRepository, user, this);
-//        if (transaction.getState() == FileTransaction.TransactionState.NOT_STARTED) {
-//            log.infov("Enlisting user repository transaction ...");
-//            session.getTransactionManager().enlistAfterCompletion(transaction);
-//        }
+        FileTransaction transaction = new FileTransaction(userRepository, user, this);
+        if (transaction.getState() == FileTransaction.TransactionState.NOT_STARTED) {
+            log.infov("Enlisting user repository transaction ...");
+            session.getTransactionManager().enlistAfterCompletion(transaction);
+        }
 
         return userModel;
     }
