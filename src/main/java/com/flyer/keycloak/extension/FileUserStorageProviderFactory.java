@@ -9,6 +9,7 @@ import org.keycloak.provider.ProviderConfigurationBuilder;
 import org.keycloak.storage.UserStorageProviderFactory;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Keycloak file based user storage provider factory
@@ -28,16 +29,14 @@ public class FileUserStorageProviderFactory implements UserStorageProviderFactor
     @Override
     public FileUserStorageProvider create(KeycloakSession session, ComponentModel model) {
         log.infov("Creating provider ...");
-        String userHomeDir = System.getProperty("user.home");
-        String fileName = "userDB.json";
 
-        FileUserRepository userRepository = FileUserRepository.getInstance(userHomeDir + "/" +fileName);
+        FileUserRepository userRepository = FileUserRepository.getInstance("/tmp/users.json");
 
         if (userRepository.getUserCount() == 0) {
             log.infov("Current user repository is empty. Populating it with some test data ...");
-            User user1 = new User("Jon", "Snow", "jon.snow@winterfell.com", "There is only one war that matters");
-            User user2 = new User("Tyrion", "Lannister", "tyrion.lannister@casterlyrock.com", "I drink and I know things");
-            User user3 = new User("Ygritte", "Snow", "Ygritte@wild.com", "You know nothing");
+            User user1 = new User(UUID.randomUUID().toString(), "Jon", "Snow", "jon.snow@winterfell.com");
+            User user2 = new User(UUID.randomUUID().toString(), "Tyrion", "Lannister", "tyrion.lannister@casterlyrock.com");
+            User user3 = new User(UUID.randomUUID().toString(), "Ygritte", "Snow", "Ygritte@wild.com");
 
             userRepository.insertUser(user1);
             userRepository.insertUser(user2);
